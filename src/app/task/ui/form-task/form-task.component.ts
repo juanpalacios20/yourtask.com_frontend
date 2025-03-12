@@ -10,7 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
   templateUrl: './form-task.component.html',
   styles: ``
 })
-export class FormTaskComponent {
+export default class FormTaskComponent {
   taskForm: FormGroup;
 
   constructor(private fb: FormBuilder, private taskService: TaskService) {
