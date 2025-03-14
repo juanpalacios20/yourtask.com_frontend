@@ -2,18 +2,33 @@ import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../../data_access/task.service';
 import { NgFor, NgIf } from '@angular/common';
 import { DeleteModalComponent } from '../../modals/delete-modal/delete-modal.component';
+import { Form, FormBuilder, FormGroup } from '@angular/forms';
+import { UpdateModalComponent } from '../../modals/update-modal/update-modal.component';
 
 @Component({
   selector: 'app-list-task',
   providers: [],
-  imports: [NgIf, NgFor, DeleteModalComponent],
+  imports: [NgIf, NgFor, DeleteModalComponent, UpdateModalComponent],
   templateUrl: './list-task.component.html',
   styles: ``,
 })
 export default class ListTaskComponent implements OnInit {
+  //arreglo de las tareas que se muestran en la vista
   tasks: any[] = [];
+  //un estado para saber si el modal del delete esta abierto
+  isModalOpen = false;
+  //id de la tarea que se va a eliminar
+  taskToDelete: number | null = null;
+  taskForm: FormGroup;
+  isModalUpdateOpen = false;
+  tasktoUpdate: number | null = null;
 
-  constructor(private taskService: TaskService) {}
+  constructor(private fb: FormBuilder, private taskService: TaskService) {
+    this.taskForm = this.fb.group({
+      title: [''],
+      description: [''],
+    });
+  }
 
   ngOnInit(): void {
     this.loadTasks();
@@ -29,9 +44,6 @@ export default class ListTaskComponent implements OnInit {
       }
     );
   }
-
-  isModalOpen = false;
-  taskToDelete: number | null = null;
 
   openDeleteModal(taskId: number) {
     this.taskToDelete = taskId;
@@ -54,6 +66,28 @@ export default class ListTaskComponent implements OnInit {
           console.error('Error al eliminar tarea:', error);
         }
       );
+    }
+  }
+
+  openUpdateModal(task: any) {
+    this.tasktoUpdate = task;
+    this.isModalUpdateOpen = true;
+  }
+
+  updateTask(updatedTask: any) {
+    try {
+      if (this.tasktoUpdate !== null) {
+        this.taskService
+          .updateTask(this.tasktoUpdate, updatedTask)
+          .subscribe((response) => {
+            console.log('Task updated:', response);
+            this.taskForm.reset();
+            this.isModalUpdateOpen = false;
+            this.loadTasks();
+          });
+      }
+    } catch (error) {
+      console.error('Error al actualizar tarea:', error);
     }
   }
 }

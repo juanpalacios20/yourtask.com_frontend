@@ -25,4 +25,8 @@ export class TaskService extends BaseHttpService {
   deleteTask(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  updateTask(id: number, task: any): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}`, task);
+  }
 }
